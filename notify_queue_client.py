@@ -19,15 +19,17 @@
 
 # This part of the program is really just responsible for sending a TCP datagram to the media_queue_daemon
 
-import sys
-import socket
+from sys import argv
+from socket import socket
+from socket import SOCK_DGRAM
+from socket import AF_INET
 
 target_ip="127.0.0.1"
 target_port=8100
 
 def bind_socket():
     # Create a UDP socket
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s = socket(AF_INET, SOCK_DGRAM)
     return s
 
 def main():
@@ -38,7 +40,7 @@ def main():
         data = s.sendto(link,((target_ip,target_port)))
 
     # Initial values
-    link = sys.argv[1].encode()
+    link = argv[1].encode()
     print(link)
     send_datagram()
 
