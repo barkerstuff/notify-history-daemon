@@ -72,20 +72,15 @@ def main():
         while True:
                 print('Waiting for subsequent datagrams')
                 message = receive_datagram(s)
-                while called_notify_osd == False:
-                    call_notify(message)
-                else:
-                    print('Got a message: {0}'.format(message))
+                print('Got a message: {0}'.format(message))
+                call_notify(message)
 
 
 def call_notify(message):
-    global called_notify_osd
     try:
         subprocess.call(['notify-send','-u','critical',message])
     except:
         raise ValueError('Notification failure')
-    else:
-        called_notify_osd = True
 
 # This just binds the UDP socket
 def bind_socket():
