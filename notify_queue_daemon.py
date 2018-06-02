@@ -33,6 +33,7 @@ listen_port=8100
 
 # Initialises this variable
 called_notify_osd = False
+use_icons = True
 
 def main():
 
@@ -70,17 +71,37 @@ def main():
             # Get that first datagram, add the url to the list (global) and get the timestamp
 
         while True:
-                print('Waiting for subsequent datagrams')
+                #print('Waiting for subsequent datagrams')
                 message = receive_datagram(s)
-                print('Got a message: {0}'.format(message))
+                #print('Got a message: {0}'.format(message))
                 call_notify(message)
 
 
 def call_notify(message):
+    # Get the message component
+    message_text = message.split(':')[0]
+    print("Message: " + message_text)
+
+    # Get the icon if specified
     try:
-        subprocess.call(['notify-send','-u','critical',message])
+        message_icon = message.split(':')[1]
     except:
-        raise ValueError('Notification failure')
+        icon=False
+    else:
+        icon=True
+
+    # Now send the notification with or without the icon
+    if icon:
+        try:
+            subprocess.call(['notify-send','-u','critical',message_text,'-i',message_icon])
+        except CalledProcessError as E:
+            raise ValueError('Notification send failure') from E
+    else:
+        try:
+            subprocess.call(['notify-send','-u','critical',message_text])
+        except CalledProcessError as E:
+            raise ValueError('Notification send failure') from E
+
 
 # This just binds the UDP socket
 def bind_socket():

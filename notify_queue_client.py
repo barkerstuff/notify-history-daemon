@@ -26,11 +26,22 @@ from sys import argv
 from socket import socket
 from socket import SOCK_DGRAM
 from socket import AF_INET
+import argparse
+from os import path
 
-# This part of the program is really just responsible for sending a UDP datagram to the media_queue_daemon
+# Parser
+parser = argparse.ArgumentParser(description='Sends messages to the media queue daemon')
+parser.set_defaults(target='127.0.0.1',port=8100)
+parser.add_argument('-i','--icon',type=str,help='Specifies the icon to use for the notification')
+parser.add_argument('-m','--message',type=str,help='Specifies the message to send as the notification')
+parser.add_argument('-c','--port',type=int,help='Specify the UDP port that the daemon is listening on. Default 8100')
+parser.add_argument('-t','--target',type=str,help='Specify the IP of the daemon. Defaults to 127.0.0.1')
+args = parser.parse_args()
 
-target_ip="127.0.0.1"
-target_port=8100
+# Make sure the icon exists
+if args.icon and not path.exists:
+    print('Invalid icon. Defaulting to none')
+    args.icon=False
 
 def bind_socket():
     # Create a UDP socket
@@ -42,10 +53,13 @@ def main():
 
     # Receive_datagram
     def send_datagram():
-        data = s.sendto(link,((target_ip,target_port)))
+        data = s.sendto(link,((args.target,args.port)))
 
     # Initial values
-    link = argv[1].encode()
+    if args.icon:
+        link = args.message.encode() + ':'.encode() + args.icon.encode()
+    else:
+        link = args.message.encode()
     print(link)
     send_datagram()
 
