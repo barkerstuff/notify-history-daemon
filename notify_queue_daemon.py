@@ -26,10 +26,14 @@ from socket import socket
 from socket import AF_INET
 from socket import SOCK_DGRAM
 import subprocess
-import re
+from datetime import datetime
+import argparse
 
-listen_ip="127.0.0.1"
-listen_port=8100
+parser = argparse.ArgumentParser()
+parser.set_defaults(listen_ip="127.0.0.1",port=8100)
+parser.add_argument('--listen_ip','-i',type=str,help="Specifies the IP for the notification daemon to listen on.  Defaults to 127.0.0.1 for security reasons.")
+parser.add_argument('--port','-p',type=int,help="Specifies the port for the notification daemon to listen on.  Defaults to 8100.")
+args = parser.parse_args()
 
 # Initialises this variable
 called_notify_osd = False
@@ -80,7 +84,7 @@ def main():
 def call_notify(message):
     # Get the message component
     message_text = message.split(':')[0]
-    print("Message: " + message_text)
+    print(str(datetime.now().ctime()) +  ": " + message_text)
 
     # Get the icon if specified
     try:
@@ -107,7 +111,7 @@ def call_notify(message):
 def bind_socket():
     # Create a UDP socket
     s = socket(AF_INET, SOCK_DGRAM)
-    s.bind((listen_ip,listen_port))
+    s.bind((args.listen_ip,args.port))
     return s
 
 

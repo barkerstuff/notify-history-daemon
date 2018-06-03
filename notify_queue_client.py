@@ -33,7 +33,7 @@ from os import path
 parser = argparse.ArgumentParser(description='Sends messages to the media queue daemon')
 parser.set_defaults(target='127.0.0.1',port=8100)
 parser.add_argument('-i','--icon',type=str,help='Specifies the icon to use for the notification')
-parser.add_argument('-m','--message',type=str,help='Specifies the message to send as the notification')
+parser.add_argument('-m','--message',type=str,nargs=argparse.REMAINDER,help='Specifies the message to send as the notification')
 parser.add_argument('-c','--port',type=int,help='Specify the UDP port that the daemon is listening on. Default 8100')
 parser.add_argument('-t','--target',type=str,help='Specify the IP of the daemon. Defaults to 127.0.0.1')
 args = parser.parse_args()
@@ -56,10 +56,11 @@ def main():
         data = s.sendto(link,((args.target,args.port)))
 
     # Initial values
+    message = " ".join(args.message)
     if args.icon:
-        link = args.message.encode() + ':'.encode() + args.icon.encode()
+        link = message.encode() + ':'.encode() + args.icon.encode()
     else:
-        link = args.message.encode()
+        link = message.encode()
     print(link)
     send_datagram()
 
