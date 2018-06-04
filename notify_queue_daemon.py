@@ -28,6 +28,7 @@ from socket import SOCK_DGRAM
 import subprocess
 from datetime import datetime
 import argparse
+from os import path
 
 parser = argparse.ArgumentParser()
 parser.set_defaults(listen_ip="127.0.0.1",port=8100)
@@ -83,27 +84,46 @@ def main():
 
 def call_notify(message):
     # Get the message component
+    message_text_length = int(len(message.split(':')) - 1)
     message_text = message.split(':')[0]
+
+    try:
+        subtitle_text = message.split(':')[1]
+    except:
+        subtitle=False
+    else:
+        subtitle=True
+
     print(str(datetime.now().ctime()) +  ": " + message_text)
 
     # Get the icon if specified
     try:
-        message_icon = message.split(':')[1]
+        message_icon = message.split(':')[-1]
     except:
         icon=False
     else:
         icon=True
 
     # Now send the notification with or without the icon
-    if icon:
+    if icon and subtitle:
         try:
-            subprocess.call(['notify-send','-u','critical',message_text,'-i',message_icon])
-        except CalledProcessError as E:
+            subprocess.call(['notify-send','-u','critical','-i',message_icon,message_text,subtitle_text])
+        except subprocess.CalledProcessError as E:
             raise ValueError('Notification send failure') from E
-    else:
+    if not icon and subtitle:
+        try:
+            subprocess.call(['notify-send','-u','critical',message_text,subtitle_text])
+        except subprocess.CalledProcessError as E:
+            raise ValueError('Notification send failure') from E
+    if icon and not subtitle:
         try:
             subprocess.call(['notify-send','-u','critical',message_text])
-        except CalledProcessError as E:
+        except subprocess.CalledProcessError as E:
+            raise ValueError('Notification send failure') from E
+    if not icon and not subtitle:
+        try:
+            subprocess.call(['notify-send','-u','critical',message_text])
+        except subprocess.CalledProcessError as E:
             raise ValueError('Notification send failure') from E
 
 
