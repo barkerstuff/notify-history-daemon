@@ -61,7 +61,7 @@ def main():
         if args.subtitle:
             link = args.message.encode() + ':'.encode() + args.subtitle.encode() + ':'.encode() + args.icon.encode()
         if not args.subtitle:
-            link = args.message.encode() + ':'.encode() + args.subtitle.encode() + ':'.encode() + args.icon.encode() + ':'.encode()
+            link = args.message.encode() + ':'.encode() + ':'.encode() + args.icon.encode() + ':'.encode()
     if not args.icon:
         if args.subtitle:
             link = args.message.encode() + ':'.encode() +  args.subtitle.encode() + ':'.encode()

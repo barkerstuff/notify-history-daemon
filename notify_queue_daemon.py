@@ -87,6 +87,7 @@ def call_notify(message):
     message_text_length = int(len(message.split(':')) - 1)
     message_text = message.split(':')[0]
 
+    # Determines whether or not a subtitle for this message exists
     try:
         subtitle_text = message.split(':')[1]
     except:
@@ -94,7 +95,11 @@ def call_notify(message):
     else:
         subtitle=True
 
-    print(str(datetime.now().ctime()) +  ": " + message_text)
+    # Prints the message to the screen
+    if subtitle:
+        print(str(datetime.now().ctime()) +  ": " + message_text + ' - ' + subtitle_text)
+    if not subtitle:
+        print(str(datetime.now().ctime()) +  ": " + message_text)
 
     # Get the icon if specified
     try:
