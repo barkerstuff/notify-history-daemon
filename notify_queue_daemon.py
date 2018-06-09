@@ -44,6 +44,8 @@ def main():
 
     global first_run, called_notify_osd
 
+    print('Notification queue: ')
+
     def init():
         s = bind_socket()
         return s
