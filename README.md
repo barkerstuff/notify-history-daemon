@@ -25,7 +25,7 @@ notify-history_client -i ~/iconfile.svg -m "Something happened"
 notify-history-client -m "Main heading of message" -s "Smaller subheading"
 #### To send a message to a daemon process listening on another computer on the LAN
 notify-history-client -m "Message here" -t 192.168.0.2
-#### To bind the daemon on the LAN ip of 192.168.0.1 rather than 127.0.0.1
+#### To bind the daemon on the LAN ip of 192.168.0.1 (rather than the default of listening locally only)
 notify-history-daemon -i 192.168.0.1
 #### To get help on additional options 
 notify-history-client --help
