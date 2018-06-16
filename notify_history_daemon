@@ -96,11 +96,11 @@ def call_notify(message):
     # Determines whether or not a subtitle for this message exists
     try:
         subtitle_text = message.split(':')[1]
+        if subtitle_text.isempty():
+            subtitle=False
     except:
         subtitle=False
-    else:
-        subtitle=True
-
+    
     message_date = str('\u001b[31;1m' + datetime.now().ctime() + ': ' + '\u001b[0m')
 
     # Prints the message to the screen
