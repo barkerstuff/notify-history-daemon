@@ -14,7 +14,7 @@ The notify_history_client is quite flexible and can specify message headings, su
 
 This program requires minimal dependencies, using only standard Python libraries as well as notify-osd itself. Possible future improvement may include support for additional notification systems.
 
-To install just copy notify_history_daemon.py and notify_history_client.py to your path (e.g. /usr/bin) and then launch notify_history_daemon.py.  Ensure that the daemon process is running as a user that can access the X session.
+To install just copy notify-history-daemon and notify-history-client.py to your path (e.g. /usr/bin) and then launch notify-history-daemon.py.  Ensure that the daemon process is running as a user that can access the X session.
 
 ## Example usage
 notify-history_client -i ~/iconfile.svg -m "Something happened"
