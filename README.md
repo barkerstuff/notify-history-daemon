@@ -17,9 +17,11 @@ This program requires minimal dependencies, using only standard Python libraries
 To install just copy notify-history-daemon and notify-history-client.py to your path (e.g. /usr/bin) and then launch notify-history-daemon.py.  Ensure that the daemon process is running as a user that can access the X session.
 
 ## Example usage
-#### To specify a message with an icon 
+#### To specify a message with no icon 
+notify-history-client -m "Message here"
+#### To specify a message with an additional icon 
 notify-history_client -i ~/iconfile.svg -m "Something happened"
-#### To specify a message with a subheading
+#### To specify a message with a subheading and no icon
 notify-history-client -m "Main heading of message" -s "Smaller subheading"
 #### To send a message to a daemon process listening on another computer on the LAN
 notify-history-client -m "Message here" -t 192.168.0.2
