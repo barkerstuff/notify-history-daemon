@@ -17,6 +17,6 @@ This program requires minimal dependencies, using only standard Python libraries
 To install just copy notify_queue_daemon.py and notify_queue_client.py to your path (e.g. /usr/bin) and then launch notify_queue_daemon.py.  Ensure that the daemon process is running as a user that can access the X session.
 
 ## Example usage
-  notify-queue_client -i ~/iconfile.svg -m "Something happened"
-  notify-queue-client -m "Main heading of message" -s "Smaller subheading"
+notify-queue_client -i ~/iconfile.svg -m "Something happened"
+notify-queue-client -m "Main heading of message" -s "Smaller subheading"
 
