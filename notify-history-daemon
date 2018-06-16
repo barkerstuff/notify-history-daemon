@@ -29,6 +29,8 @@ import subprocess
 from datetime import datetime
 import argparse
 from os import path
+from sys import stdout
+from sys import exit
 import logging
 from logging.handlers import RotatingFileHandler
 
@@ -47,6 +49,9 @@ use_icons = True
 def main():
 
     global first_run, called_notify_osd
+
+    # Sets the terminal title 
+    stdout.write("\x1b]2;notify-history-daemon\x07")
 
     print('\u001b[35;1mNotification queue: \u001b[0m')
 
@@ -72,20 +77,26 @@ def main():
 
 
     # Main daemon loop
-    while True:
-        if first_run:
-            s = init()
-            first_run = False
-
-            # Reset called_notify_osd to False for the new set of links
-            called_notify_osd = False
-            # Get that first datagram, add the url to the list (global) and get the timestamp
-
+    try:
         while True:
-                #print('Waiting for subsequent datagrams')
-                message = receive_datagram(s)
-                #print('Got a message: {0}'.format(message))
-                call_notify(message)
+            if first_run:
+                s = init()
+                first_run = False
+
+                # Reset called_notify_osd to False for the new set of links
+                called_notify_osd = False
+                # Get that first datagram, add the url to the list (global) and get the timestamp
+
+            while True:
+                    #print('Waiting for subsequent datagrams')
+                    message = receive_datagram(s)
+                    #print('Got a message: {0}'.format(message))
+                    call_notify(message)
+
+    # Clear the terminal title on interrupt
+    except KeyboardInterrupt:
+        stdout.write("\x1b]2;\x07")
+        exit('Interrupt caught. Exiting')
 
 
 def call_notify(message):
@@ -169,3 +180,4 @@ def bind_socket():
 
 if __name__ == main():
     main()
+
