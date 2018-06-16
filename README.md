@@ -18,5 +18,6 @@ To install just copy notify_queue_daemon.py and notify_queue_client.py to your p
 
 ## Example usage
 notify-queue_client -i ~/iconfile.svg -m "Something happened"
+
 notify-queue-client -m "Main heading of message" -s "Smaller subheading"
 
