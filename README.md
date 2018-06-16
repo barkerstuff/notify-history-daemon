@@ -6,7 +6,7 @@ Notify-history-daemon solves this problem by creating a logged history of notifi
 
 The way it works?  It's fairly straightforward. Firstly, the daemon is launched, whether manually, via user service or as a startup entry in your window manager. Once the daemon is listening, then the client can be used is used to send custom notifications using notify-osd. In addition to calling notify-osd itself, the daemon will print messages to standard output and log them to file.
 
-One additional advantage of this approach is that since the daemon runs as the user, then it can be used to shuttle notifications from service managers such as systemd or runit to the desktop (e.g. by placing it in a systemd ExecStop= line) 
+One additional advantage of this approach is that since the daemon runs as the user, then notifications can also be easily shuttled from service managers such as systemd/runit to the desktop (e.g. by placing it in a systemd ExecStop= line). Normally this would be prevented if calling notify-send without the daemon.
 
 The notify_history_client is quite flexible and can specify message headings, subheadings and icons.
 
