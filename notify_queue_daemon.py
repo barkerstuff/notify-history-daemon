@@ -29,11 +29,15 @@ import subprocess
 from datetime import datetime
 import argparse
 from os import path
+import logging
+from logging.handlers import RotatingFileHandler
 
 parser = argparse.ArgumentParser()
-parser.set_defaults(listen_ip="127.0.0.1",port=8100)
+parser.set_defaults(listen_ip="127.0.0.1",nolog=False,port=8100,logfile=path.join(path.expanduser('~'),'notify-daemon.log'))
 parser.add_argument('--listen_ip','-i',type=str,help="Specifies the IP for the notification daemon to listen on.  Defaults to 127.0.0.1 for security reasons.")
 parser.add_argument('--port','-p',type=int,help="Specifies the port for the notification daemon to listen on.  Defaults to 8100.")
+parser.add_argument('--nolog','-n',action='store_true',help="Disables logging of notifications")
+parser.add_argument('--logfile','-l',type=str,help="Specifies the file where notifications should be logged.  Defaults to ~/notify-daemon.log")
 args = parser.parse_args()
 
 # Initialises this variable
@@ -97,11 +101,15 @@ def call_notify(message):
     else:
         subtitle=True
 
+    message_date = str('\u001b[31;1m' + datetime.now().ctime() + ': ' + '\u001b[0m')
+
     # Prints the message to the screen
     if subtitle:
-        print(str(datetime.now().ctime()) +  ": " + message_text + ' - ' + subtitle_text)
+        full_message = message_text + ' - ' + subtitle_text
+        print(message_date + full_message)
     if not subtitle:
-        print(str(datetime.now().ctime()) +  ": " + message_text)
+        full_message = message_text
+        print(message_date + full_message)
 
     # Get the icon if specified
     try:
@@ -133,6 +141,23 @@ def call_notify(message):
         except subprocess.CalledProcessError as E:
             raise ValueError('Notification send failure') from E
 
+    # Log the notification
+    def create_rotating_log(path,message_date,full_message):
+        """
+        Creates a rotating log
+        """
+        logger = logging.getLogger("Rotating Log")
+        logger.setLevel(logging.INFO)
+
+        # add a rotating handler
+        handler = RotatingFileHandler(path, maxBytes=10000,
+                                      backupCount=5)
+        logger.addHandler(handler)
+        log_output = message_date + full_message
+        logger.info(log_output)
+
+    if not args.nolog:
+        create_rotating_log(args.logfile,message_date,full_message)
 
 # This just binds the UDP socket
 def bind_socket():
