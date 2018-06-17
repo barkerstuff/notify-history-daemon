@@ -35,11 +35,12 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 parser = argparse.ArgumentParser()
-parser.set_defaults(listen_ip="127.0.0.1",nolog=False,port=8100,logfile=path.join(path.expanduser('~'),'notify-daemon.log'))
+parser.set_defaults(listen_ip="127.0.0.1",nolog=False,port=8100,verbose=False,logfile=path.join(path.expanduser('~'),'notify-daemon.log'))
 parser.add_argument('--listen_ip','-i',type=str,help="Specifies the IP for the notification daemon to listen on.  Defaults to 127.0.0.1 for security reasons.")
 parser.add_argument('--port','-p',type=int,help="Specifies the port for the notification daemon to listen on.  Defaults to 8100.")
 parser.add_argument('--nolog','-n',action='store_true',help="Disables logging of notifications")
 parser.add_argument('--logfile','-l',type=str,help="Specifies the file where notifications should be logged.  Defaults to ~/notify-daemon.log")
+parser.add_argument('--verbose','-v',action='store_true',help="Prints additional information while running")
 args = parser.parse_args()
 
 # Initialises this variable
@@ -88,9 +89,7 @@ def main():
                 # Get that first datagram, add the url to the list (global) and get the timestamp
 
             while True:
-                    #print('Waiting for subsequent datagrams')
                     message = receive_datagram(s)
-                    #print('Got a message: {0}'.format(message))
                     call_notify(message)
 
     # Clear the terminal title on interrupt
@@ -100,35 +99,50 @@ def main():
 
 
 def call_notify(message):
+    # Message is formatted like as follows
+    #  main_message_text:subtitle_text:icon_file:
+    if args.verbose:
+        print('\nReceived full message: ',message)
+    
     # Get the message component
     message_text_length = int(len(message.split(':')) - 1)
     message_text = message.split(':')[0]
 
     # Determines whether or not a subtitle for this message exists
-    try:
-        subtitle_text = message.split(':')[1]
-        if subtitle_text.isempty():
-            subtitle=False
-    except:
+    subtitle_text = message.split(':')[1]
+    if len(subtitle_text) >0:
+        if args.verbose:
+            print('Subtitle present')
+        subtitle=True
+    else:
+        if args.verbose:
+            print('No subtitle')
         subtitle=False
     
+    # Get the icon if specified
+    message_icon = message.split(':')[2]
+
+    if len(message_icon) > 0:
+        if args.verbose:
+            print('Icon received: ',message_icon)
+        icon=True
+    else:
+        if args.verbose:
+            print('\tNo icon received')
+        icon=False
+        
+         
+    # Creates the the ANSI red coloured date printout
     message_date = str('\u001b[31;1m' + datetime.now().ctime() + ': ' + '\u001b[0m')
 
     # Prints the message to the screen
     if subtitle:
-        full_message = message_text + ' - ' + subtitle_text
-        print(message_date + full_message)
+        printable_message = message_text + ' - ' + subtitle_text
+        print(message_date + printable_message)
     if not subtitle:
-        full_message = message_text
-        print(message_date + full_message)
+        printable_message = message_text
+        print(message_date + printable_message)
 
-    # Get the icon if specified
-    try:
-        message_icon = message.split(':')[-1]
-    except:
-        icon=False
-    else:
-        icon=True
 
     # Now send the notification with or without the icon
     if icon and subtitle:
@@ -143,7 +157,7 @@ def call_notify(message):
             raise ValueError('Notification send failure') from E
     if icon and not subtitle:
         try:
-            subprocess.call(['notify-send','-u','critical',message_text])
+            subprocess.call(['notify-send','-u','critical','-i',message_icon,message_text])
         except subprocess.CalledProcessError as E:
             raise ValueError('Notification send failure') from E
     if not icon and not subtitle:
@@ -153,7 +167,7 @@ def call_notify(message):
             raise ValueError('Notification send failure') from E
 
     # Log the notification
-    def create_rotating_log(path,message_date,full_message):
+    def create_rotating_log(path,message_date,printable_message):
         """
         Creates a rotating log
         """
@@ -161,14 +175,14 @@ def call_notify(message):
         logger.setLevel(logging.INFO)
 
         # add a rotating handler
-        handler = RotatingFileHandler(path, maxBytes=10000,
+        handler = RotatingFileHandler(path, maxBytes=100000,
                                       backupCount=5)
         logger.addHandler(handler)
-        log_output = message_date + full_message
+        log_output = message_date + printable_message
         logger.info(log_output)
 
     if not args.nolog:
-        create_rotating_log(args.logfile,message_date,full_message)
+        create_rotating_log(args.logfile,message_date,printable_message)
 
 # This just binds the UDP socket
 def bind_socket():
