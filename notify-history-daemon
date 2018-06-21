@@ -36,12 +36,18 @@ from logging.handlers import RotatingFileHandler
 
 parser = argparse.ArgumentParser()
 parser.set_defaults(listen_ip="127.0.0.1",nolog=False,port=8100,verbose=False,logfile=path.join(path.expanduser('~'),'notify-daemon.log'))
-parser.add_argument('--listen_ip','-i',type=str,help="Specifies the IP for the notification daemon to listen on.  Defaults to 127.0.0.1 for security reasons.")
-parser.add_argument('--port','-p',type=int,help="Specifies the port for the notification daemon to listen on.  Defaults to 8100.")
-parser.add_argument('--nolog','-n',action='store_true',help="Disables logging of notifications")
-parser.add_argument('--logfile','-l',type=str,help="Specifies the file where notifications should be logged.  Defaults to ~/notify-daemon.log")
-parser.add_argument('--verbose','-v',action='store_true',help="Prints additional information while running")
-args = parser.parse_args()
+
+parser.add_argument('--listen_ip','-i',type=str,
+                help="Specifies the IP for the notification daemon to listen on.  Defaults to 127.0.0.1 for security reasons.")
+parser.add_argument('--port','-p',type=int,
+                help="Specifies the port for the notification daemon to listen on.  Defaults to 8100.")
+parser.add_argument('--nolog','-n',action='store_true',
+                help="Disables logging of notifications")
+parser.add_argument('--logfile','-l',type=str,
+                help="Specifies the file where notifications should be logged.  Defaults to ~/notify-daemon.log")
+parser.add_argument('--verbose','-v',action='store_true',
+                help="Prints additional information while running")
+ARGS = parser.parse_args()
 
 # Initialises this variable
 called_notify_osd = False
@@ -101,8 +107,8 @@ def main():
 def call_notify(message):
     # Message is formatted like as follows
     #  main_message_text:subtitle_text:icon_file:
-    if args.verbose:
-        print('\nReceived full message: ',message)
+    if ARGS.verbose:
+        print('\nReceived full message: ', message)
     
     # Get the message component
     message_text_length = int(len(message.split(':')) - 1)
@@ -111,11 +117,11 @@ def call_notify(message):
     # Determines whether or not a subtitle for this message exists
     subtitle_text = message.split(':')[1]
     if len(subtitle_text) >0:
-        if args.verbose:
+        if ARGS.verbose:
             print('Subtitle present')
         subtitle=True
     else:
-        if args.verbose:
+        if ARGS.verbose:
             print('No subtitle')
         subtitle=False
     
@@ -123,11 +129,11 @@ def call_notify(message):
     message_icon = message.split(':')[2]
 
     if len(message_icon) > 0:
-        if args.verbose:
-            print('Icon received: ',message_icon)
+        if ARGS.verbose:
+            print('Icon received: ', message_icon)
         icon=True
     else:
-        if args.verbose:
+        if ARGS.verbose:
             print('\tNo icon received')
         icon=False
         
@@ -147,17 +153,17 @@ def call_notify(message):
     # Now send the notification with or without the icon
     if icon and subtitle:
         try:
-            subprocess.call(['notify-send','-u','critical','-i',message_icon,message_text,subtitle_text])
+            subprocess.call(['notify-send', '-u', 'critical', '-i', message_icon, message_text, subtitle_text])
         except subprocess.CalledProcessError as E:
             raise ValueError('Notification send failure') from E
     if not icon and subtitle:
         try:
-            subprocess.call(['notify-send','-u','critical',message_text,subtitle_text])
+            subprocess.call(['notify-send', '-u', 'critical', message_text, subtitle_text])
         except subprocess.CalledProcessError as E:
             raise ValueError('Notification send failure') from E
     if icon and not subtitle:
         try:
-            subprocess.call(['notify-send','-u','critical','-i',message_icon,message_text])
+            subprocess.call(['notify-send', '-u', 'critical', '-i', message_icon, message_text])
         except subprocess.CalledProcessError as E:
             raise ValueError('Notification send failure') from E
     if not icon and not subtitle:
@@ -167,7 +173,7 @@ def call_notify(message):
             raise ValueError('Notification send failure') from E
 
     # Log the notification
-    def create_rotating_log(path,message_date,printable_message):
+    def create_rotating_log(path, message_date, printable_message):
         """
         Creates a rotating log
         """
@@ -181,14 +187,14 @@ def call_notify(message):
         log_output = message_date + printable_message
         logger.info(log_output)
 
-    if not args.nolog:
-        create_rotating_log(args.logfile,message_date,printable_message)
+    if not ARGS.nolog:
+        create_rotating_log(ARGS.logfile, message_date, printable_message)
 
 # This just binds the UDP socket
 def bind_socket():
     # Create a UDP socket
     s = socket(AF_INET, SOCK_DGRAM)
-    s.bind((args.listen_ip,args.port))
+    s.bind((ARGS.listen_ip, ARGS.port))
     return s
 
 
